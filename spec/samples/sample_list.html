@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform2Sheet 一覧表示サンプル</title>
+</head>
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        margin: 20px;
+        background-color: #f6f8fa;
+    }
+    h1 {
+        color: #24292e;
+        border-bottom: 3px solid #0366d6;
+        padding-bottom: 10px;
+    }
+    h2 {
+        color: #24292e;
+        background-color: #e1e4e8;
+        padding: 8px 12px;
+        border-left: 4px solid #0366d6;
+        margin-top: 30px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 30px;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    thead {
+        background-color: #0366d6;
+        color: white;
+    }
+    th, td {
+        border: 1px solid #d1d5da;
+        padding: 8px 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        font-weight: 600;
+    }
+    tbody tr:hover {
+        background-color: #f6f8fa;
+    }
+    .resource-name {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.9em;
+        color: #032f62;
+        font-weight: 600;
+    }
+    .param-value {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.9em;
+        word-break: break-all;
+    }
+    .short-value {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* 折りたたみ可能な詳細 */
+    details {
+        margin: 0;
+    }
+    summary {
+        cursor: pointer;
+        color: #0366d6;
+        font-weight: 600;
+        padding: 4px 8px;
+        border-radius: 3px;
+        display: inline-block;
+    }
+    summary:hover {
+        background-color: #f1f8ff;
+    }
+    summary::marker {
+        color: #0366d6;
+    }
+
+    .expandable-content {
+        background-color: #f6f8fa;
+        border: 1px solid #d1d5da;
+        border-radius: 3px;
+        padding: 8px;
+        margin-top: 8px;
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.85em;
+        white-space: pre-wrap;
+        word-break: break-all;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .item-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .item-list-entry {
+        padding: 4px 0;
+        border-bottom: 1px solid #e1e4e8;
+    }
+    .item-list-entry:last-child {
+        border-bottom: none;
+    }
+    .item-value {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.85em;
+        color: #586069;
+    }
+    .pending {
+        color: #e36209;
+        font-style: italic;
+    }
+</style>
+<body>
+<h1>Terraform2Sheet 一覧表示サンプル</h1>
+
+<h2>AWS IAM Role 一覧</h2>
+
+<table>
+<thead>
+  <tr>
+    <th style="width: 200px;">Role名</th>
+    <th style="width: 150px;">説明</th>
+    <th style="width: 300px;">信頼関係</th>
+    <th style="width: 300px;">アタッチされたポリシー</th>
+  </tr>
+</thead>
+<tbody>
+  <!-- Role 1: Lambda実行ロール -->
+  <tr>
+    <td class="resource-name">lambda_execution_role</td>
+    <td>Lambda関数の実行ロール</td>
+    <td>
+      <details>
+        <summary>信頼関係を表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+    <td>
+      <ul class="item-list">
+        <li class="item-list-entry">
+          <div class="item-value">arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole</div>
+        </li>
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/custom-lambda-policy</div>
+        </li>
+      </ul>
+    </td>
+  </tr>
+
+  <!-- Role 2: EC2インスタンスロール -->
+  <tr>
+    <td class="resource-name">ec2_instance_role</td>
+    <td>EC2インスタンス用のロール</td>
+    <td>
+      <details>
+        <summary>信頼関係を表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+    <td>
+      <ul class="item-list">
+        <li class="item-list-entry">
+          <div class="item-value">arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore</div>
+        </li>
+        <li class="item-list-entry">
+          <div class="item-value">arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy</div>
+        </li>
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/s3-access-policy</div>
+        </li>
+      </ul>
+    </td>
+  </tr>
+
+  <!-- Role 3: ECSタスク実行ロール -->
+  <tr>
+    <td class="resource-name">ecs_task_execution_role</td>
+    <td>ECSタスク実行用のロール</td>
+    <td>
+      <details>
+        <summary>信頼関係を表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "123456789012"
+        }
+      }
+    }
+  ]
+}</div>
+      </details>
+    </td>
+    <td>
+      <ul class="item-list">
+        <li class="item-list-entry">
+          <div class="item-value">arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy</div>
+        </li>
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/ecr-pull-policy</div>
+        </li>
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/secrets-access-policy</div>
+        </li>
+      </ul>
+    </td>
+  </tr>
+
+  <!-- Role 4: RDS拡張モニタリングロール -->
+  <tr>
+    <td class="resource-name">rds_monitoring_role</td>
+    <td>RDS拡張モニタリング用</td>
+    <td>
+      <details>
+        <summary>信頼関係を表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "monitoring.rds.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+    <td>
+      <ul class="item-list">
+        <li class="item-list-entry">
+          <div class="item-value">arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole</div>
+        </li>
+      </ul>
+    </td>
+  </tr>
+
+  <!-- Role 5: CodeBuildサービスロール -->
+  <tr>
+    <td class="resource-name">codebuild_service_role</td>
+    <td>CodeBuildプロジェクト用</td>
+    <td>
+      <details>
+        <summary>信頼関係を表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+    <td>
+      <ul class="item-list">
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/codebuild-base-policy</div>
+        </li>
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/ecr-push-policy</div>
+        </li>
+        <li class="item-list-entry pending">
+          <div class="item-value">(pending) arn:aws:iam::123456789012:policy/s3-artifact-policy</div>
+        </li>
+      </ul>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+<h2>AWS IAM Policy 一覧</h2>
+
+<table>
+<thead>
+  <tr>
+    <th style="width: 250px;">Policy名</th>
+    <th style="width: 150px;">説明</th>
+    <th style="width: 400px;">ポリシードキュメント</th>
+  </tr>
+</thead>
+<tbody>
+  <!-- Policy 1: Lambda用カスタムポリシー -->
+  <tr>
+    <td class="resource-name">custom-lambda-policy</td>
+    <td>Lambda用のカスタムポリシー</td>
+    <td>
+      <details>
+        <summary>ポリシードキュメントを表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "arn:aws:logs:*:*:*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:Query"
+      ],
+      "Resource": "arn:aws:dynamodb:ap-northeast-1:123456789012:table/MyTable"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+  </tr>
+
+  <!-- Policy 2: S3アクセスポリシー -->
+  <tr>
+    <td class="resource-name">s3-access-policy</td>
+    <td>S3バケットへのアクセス権限</td>
+    <td>
+      <details>
+        <summary>ポリシードキュメントを表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::my-bucket/*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "arn:aws:s3:::my-bucket"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+  </tr>
+
+  <!-- Policy 3: ECRプルポリシー -->
+  <tr>
+    <td class="resource-name">ecr-pull-policy</td>
+    <td>ECRからのイメージプル権限</td>
+    <td>
+      <details>
+        <summary>ポリシードキュメントを表示</summary>
+        <div class="expandable-content">{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:BatchGetImage"
+      ],
+      "Resource": "*"
+    }
+  ]
+}</div>
+      </details>
+    </td>
+  </tr>
+</tbody>
+</table>
+
+</body>
+</html>

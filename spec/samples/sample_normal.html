@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform2Sheet 出力サンプル（通常表示）</title>
+</head>
+<style>
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+        margin: 20px;
+        background-color: #f6f8fa;
+    }
+    h1 {
+        color: #24292e;
+        border-bottom: 3px solid #0366d6;
+        padding-bottom: 10px;
+    }
+    h2 {
+        color: #24292e;
+        background-color: #e1e4e8;
+        padding: 8px 12px;
+        border-left: 4px solid #0366d6;
+        margin-top: 30px;
+    }
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 30px;
+        background-color: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    thead {
+        background-color: #0366d6;
+        color: white;
+    }
+    th, td {
+        border: 1px solid #d1d5da;
+        padding: 8px 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        font-weight: 600;
+    }
+    tbody tr:hover {
+        background-color: #f6f8fa;
+    }
+    .index-cell {
+        background-color: #f1f8ff;
+        font-weight: 600;
+        text-align: center;
+        color: #0366d6;
+        min-width: 50px;
+    }
+    .param-name {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.9em;
+        color: #032f62;
+    }
+    .param-value {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.9em;
+        word-break: break-all;
+    }
+    .required-yes {
+        color: #d73a49;
+        font-weight: 600;
+    }
+    .required-no {
+        color: #6a737d;
+    }
+    .computed {
+        color: #6f42c1;
+        font-style: italic;
+    }
+    .pending {
+        color: #e36209;
+        font-style: italic;
+    }
+</style>
+<body>
+<h1>Terraform2Sheet 出力サンプル（通常表示）</h1>
+
+<h2>例1: 単純な属性のみ（aws_example_resource.simple）</h2>
+<table>
+<thead>
+  <tr>
+    <th colspan="2">パラメータ</th>
+    <th>値</th>
+    <th>必須</th>
+    <th>説明</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="2">aaa</td>
+    <td class="param-value">value_aaa</td>
+    <td class="required-yes">Yes</td>
+    <td>AAAパラメータの説明</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="2">bbb</td>
+    <td class="param-value">value_bbb</td>
+    <td class="required-no">No</td>
+    <td>BBBパラメータの説明</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="2">ccc</td>
+    <td class="param-value">123</td>
+    <td class="required-no">No</td>
+    <td>CCCパラメータの説明（数値）</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>例2: 配列属性（aws_example_resource.array）</h2>
+<table>
+<thead>
+  <tr>
+    <th colspan="2">パラメータ</th>
+    <th>値</th>
+    <th>必須</th>
+    <th>説明</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="2">name</td>
+    <td class="param-value">example_name</td>
+    <td class="required-yes">Yes</td>
+    <td>リソース名</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="3">tags</td>
+    <td class="index-cell" rowspan="1">1</td>
+    <td class="param-value">tag_value_1</td>
+    <td class="required-no">No</td>
+    <td>タグの配列</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="1">2</td>
+    <td class="param-value">tag_value_2</td>
+    <td class="required-no">No</td>
+    <td>タグの配列</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="1">3</td>
+    <td class="param-value">tag_value_3</td>
+    <td class="required-no">No</td>
+    <td>タグの配列</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>例3: ネストされた配列（aws_example_resource.nested）</h2>
+<table>
+<thead>
+  <tr>
+    <th colspan="4">パラメータ</th>
+    <th>値</th>
+    <th>必須</th>
+    <th>説明</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="4">name</td>
+    <td class="param-value">nested_example</td>
+    <td class="required-yes">Yes</td>
+    <td>リソース名</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="8">rules</td>
+    <td class="index-cell" rowspan="5">1</td>
+    <td class="param-name" rowspan="1">name</td>
+    <td rowspan="1">-</td>
+    <td class="param-value">rule_1</td>
+    <td class="required-no">No</td>
+    <td>ルールの配列</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="3">methods</td>
+    <td class="index-cell" rowspan="1">1</td>
+    <td class="param-value">GET</td>
+    <td class="required-no">No</td>
+    <td>許可されるHTTPメソッド</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="1">2</td>
+    <td class="param-value">POST</td>
+    <td class="required-no">No</td>
+    <td>許可されるHTTPメソッド</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="1">3</td>
+    <td class="param-value">PUT</td>
+    <td class="required-no">No</td>
+    <td>許可されるHTTPメソッド</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1">priority</td>
+    <td rowspan="1">-</td>
+    <td class="param-value">100</td>
+    <td class="required-no">No</td>
+    <td>ルールの優先度</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="3">2</td>
+    <td class="param-name" rowspan="1">name</td>
+    <td rowspan="1">-</td>
+    <td class="param-value">rule_2</td>
+    <td class="required-no">No</td>
+    <td>ルールの配列</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1">methods</td>
+    <td class="index-cell" rowspan="1">1</td>
+    <td class="param-value">DELETE</td>
+    <td class="required-no">No</td>
+    <td>許可されるHTTPメソッド</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1">priority</td>
+    <td rowspan="1">-</td>
+    <td class="param-value">200</td>
+    <td class="required-no">No</td>
+    <td>ルールの優先度</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="4">enabled</td>
+    <td class="param-value">true</td>
+    <td class="required-no">No</td>
+    <td>リソースの有効/無効</td>
+  </tr>
+</tbody>
+</table>
+
+<h2>例4: 参照とペンディング値（aws_example_resource.references）</h2>
+<table>
+<thead>
+  <tr>
+    <th colspan="2">パラメータ</th>
+    <th>値</th>
+    <th>必須</th>
+    <th>説明</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="2">name</td>
+    <td class="param-value">example_with_refs</td>
+    <td class="required-yes">Yes</td>
+    <td>リソース名</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="1" colspan="2">computed_id</td>
+    <td class="param-value">null</td>
+    <td class="">-</td>
+    <td>Apply後に決定される値</td>
+  </tr>
+  <tr>
+    <td class="param-name" rowspan="3">attached_items</td>
+    <td class="index-cell" rowspan="1">1</td>
+    <td class="param-value">arn:aws:service::123456789012:resource/existing-item</td>
+    <td class="">-</td>
+    <td>アタッチされたアイテムのARN</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="1">2</td>
+    <td class="param-value pending">(pending) aws_example_item.item_a</td>
+    <td class="">-</td>
+    <td>アタッチされたアイテムのARN</td>
+  </tr>
+  <tr>
+    <td class="index-cell" rowspan="1">3</td>
+    <td class="param-value pending">(pending) aws_example_item.item_b</td>
+    <td class="">-</td>
+    <td>アタッチされたアイテムのARN</td>
+  </tr>
+</tbody>
+</table>
+
+</body>
+</html>

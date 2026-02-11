@@ -276,47 +276,62 @@ plan.json + schema.json
 
 ## テスト・検証
 
-### 全Phaseの一括テスト
+### テストスクリプトの使い方
+
+`tests/`ディレクトリに共通テストスクリプトがあり、引数でテストディレクトリを指定する：
+
 ```bash
-# テストディレクトリで全Phase実行（サンプル001-006）
-cd tests2
-./exec_all_tests.sh
+cd tests
+
+# 個別Phaseのテスト
+./phase1_test.sh test001
+./phase2_1_test.sh test001
+./phase2_2_test.sh test001
+./phase2_3_test.sh test001
+./phase3_test.sh test001
+
+# 1つのテストの全Phase実行
+./run_all_phases.sh test001
+
+# 全テスト実行（test001〜test004）
+./run_all_tests.sh
 ```
 
-### 個別Phaseモジュールの動作確認
-各モジュールは単独で実行可能（テスト・デバッグ用）：
+### 個別Phaseモジュールの直接実行
+各モジュールは`test()`関数を持ち、単独で実行可能（テスト・デバッグ用）：
 
 ```bash
+cd tests/test001
+
 # Phase 1
-python lib/data_extraction.py plan.json schema.json \
-  --output extracted.json \
-  --pickle-dump extracted.pkl
+python3 ../../lib/data_extraction.py plan.json schema.json \
+  --pickle-dump extracted.pkl \
+  --output extracted.json
 
 # Phase 2-1
-python lib/special_processor.py extracted.pkl \
-  --pickle-load \
-  --output special_processed.json \
-  --pickle-dump special_processed.pkl
+python3 ../../lib/special_processor.py extracted.pkl --pickle-load \
+  --pickle-dump special.pkl \
+  --output special.json
 
 # Phase 2-2
-python lib/reference_resolver.py special_processed.pkl \
-  --pickle-load \
-  --output reference_resolved.json \
-  --pickle-dump reference_resolved.pkl \
-  --identifier-config custom_identifiers.json  # オプション
+python3 ../../lib/reference_resolver.py special.pkl --pickle-load \
+  --pickle-dump reference.pkl \
+  --output reference.json
 
 # Phase 2-3
-python lib/view_converter.py reference_resolved.pkl \
-  --pickle-load \
+python3 ../../lib/view_converter.py reference.pkl --pickle-load \
+  --pickle-dump view.pkl \
   --output view.json
 
 # Phase 3
-python lib/file_organizer.py view.json \
-  --output-dir html_output \
-  --title "Terraform Plan"
+python3 ../../lib/file_organizer.py view.pkl html_output --pickle-load
 ```
 
-**注**: 上記はモジュール単体の動作確認用。実際のユーザー利用向けには、これらを統合したメインスクリプトを別途実装予定。
+### 統合テスト（メインスクリプト）
+```bash
+cd tests/test001
+../../bin/tfplan-viewer.py -p plan.json -s schema.json -o html_output
+```
 
 ---
 
@@ -336,25 +351,16 @@ python lib/file_organizer.py view.json \
 
 ---
 
-## テストサンプル
+## テストケース
 
-`tests2/`ディレクトリに各Phaseのテストサンプルを配置:
+`tests/`ディレクトリに各テストケースのデータを配置:
 
-- `phase1_extraction/` - Phase 1モジュールのテスト
-- `phase2-1_special/` - Phase 2-1モジュールのテスト
-- `phase2-2_reference/` - Phase 2-2モジュールのテスト
-- `phase2-3_view/` - Phase 2-3モジュールのテスト
-- `phase3_html/` - Phase 3モジュールのテスト
+- `test001/` - 基本的なリソース（IAM Role + S3 Bucket）
+- `test002/` - リソース間参照
+- `test003/` - モジュール構造
+- `test004/` - 複雑な参照
 
-各ディレクトリに`exec_all_tests.sh`があり、全サンプル（sample001-006）を一括実行可能。
-
-**テストサンプル一覧**:
-- sample001: 基本テスト（IAM Role + S3 Bucket）
-- sample002: IAM Role with attached policies（ポリシーアタッチメント統合テスト）
-- sample003: モジュール間参照（VPC + Appモジュール）
-- sample004: IAM Role, Policy, S3 Bucket with module
-- sample005: VPC, Subnet, Security Group, EC2 Instance with modules
-- sample006: VPC with multiple subnets（サブネット統合テスト）
+各テストケースにはTerraformの`main.tf`、`plan.json`、`schema.json`が含まれ、全Phaseを通して実行可能。
 
 ---
 

@@ -94,7 +94,7 @@ if __name__ == '__main__':
 - **メインスクリプト（bin/）では中間ファイルを生成しない** - すべてメモリ内で処理
 - **Pickleファイルはテスト用のみ** - Phase別テスト（tests2/）でPhase間のデータ検証に使用
 - **JSONファイルもテスト用のみ** - 人間がデータ内容を確認するため
-- Phaseモジュールの`test()`関数では、pickleとJSON両方を出力可能にする（テスト・開発用）
+- Phaseモジュールの`test()`関数では、`--pickle-dump`と`--output`オプションでpickleとJSON両方を出力可能にする（テスト・開発用）
 
 ---
 
@@ -135,16 +135,28 @@ if __name__ == '__main__':
 
 ## テストの設計方針
 
-### tests2/（Phase別テスト）
+### tests/（テストディレクトリ）
 
-- 各Phaseモジュールを個別にテスト
+- `tests/`直下にPhase別テストスクリプトを配置（引数でテストディレクトリを指定）
 - 各モジュールの`test()`関数を実行
 - 中間データをpickleとJSON両方で出力（検証用）
-- 各Phaseのexec_all_tests.shで全サンプルを実行
+- `tests/test001〜test004`に各テストケースのデータを配置
 
-### tests3/（統合テスト）
+### テストスクリプト
 
-- メインスクリプト（bin/tfplan-viewer.py）の統合テスト
+| スクリプト | 用途 |
+|-----------|------|
+| `phase1_test.sh <test_dir>` | Phase 1のみ実行 |
+| `phase2_1_test.sh <test_dir>` | Phase 2-1のみ実行 |
+| `phase2_2_test.sh <test_dir>` | Phase 2-2のみ実行 |
+| `phase2_3_test.sh <test_dir>` | Phase 2-3のみ実行 |
+| `phase3_test.sh <test_dir>` | Phase 3のみ実行 |
+| `run_all_phases.sh <test_dir>` | 指定テストの全Phase実行 |
+| `run_all_tests.sh` | 全テスト（test001〜test004）実行 |
+
+### 統合テスト
+
+- メインスクリプト（`bin/tfplan-viewer.py`）による統合テストも各テストディレクトリで実行可能
 - 中間ファイルは生成せず、メモリ内で全Phase実行
 - 最終的なHTML出力のみを生成
 

@@ -93,8 +93,8 @@ def generate_full_html(table_html, title="Terraform Plan"):
   return '\n'.join(html)
 
 
-def main():
-  """Main entry point for table generation (for testing)"""
+def test():
+  """Test function for development and debugging"""
   import json
   import argparse
 
@@ -166,4 +166,4 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+  test()

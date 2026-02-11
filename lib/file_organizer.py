@@ -79,16 +79,20 @@ def organize_html_files(view_data, output_dir, title="Terraform Plan"):
 def test():
   """Test function for development and debugging"""
   parser = argparse.ArgumentParser(
-    description='Phase 3-2: Organize HTML files from ViewValue data'
+    description='Phase 3: Organize HTML files from ViewValue data'
   )
   parser.add_argument(
     'input_file',
-    help='Input pickle file (view.pickle from Phase 2-3)'
+    help='Input pickle file (view.pkl from Phase 2-3)'
   )
   parser.add_argument(
-    '--output-dir',
-    default='html_output',
-    help='Output directory for HTML files (default: html_output)'
+    'output_dir',
+    help='Output directory for HTML files'
+  )
+  parser.add_argument(
+    '--pickle-load',
+    action='store_true',
+    help='Load input as pickle file'
   )
   parser.add_argument(
     '--title',
@@ -98,11 +102,14 @@ def test():
 
   args = parser.parse_args()
 
-  # Load input data from pickle
-  with open(args.input_file, 'rb') as f:
-    view_data = pickle.load(f)
-
-  print(f"Loaded {len(view_data)} resources from {args.input_file}", file=sys.stderr)
+  # Load input data
+  if args.pickle_load:
+    with open(args.input_file, 'rb') as f:
+      view_data = pickle.load(f)
+    print(f"Loaded {len(view_data)} resources from pickle", file=sys.stderr)
+  else:
+    print("ERROR: Only pickle input is supported (use --pickle-load)", file=sys.stderr)
+    sys.exit(1)
 
   # Organize files
   stats = organize_html_files(view_data, args.output_dir, args.title)

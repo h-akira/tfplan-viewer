@@ -102,7 +102,7 @@ python bin/tfplan-viewer.py \
 2. 設定ファイル読み込み（指定されている場合）
    ↓
 3. Phase 1: データ抽出
-   data_extraction.extract_resources_from_plan()
+   data_extraction.extract_data()
    ↓
 4. Phase 2-1: 特殊リソース処理
    special_processor.process_special_resources()
@@ -111,10 +111,10 @@ python bin/tfplan-viewer.py \
    reference_resolver.resolve_references()
    ↓
 6. Phase 2-3: View変換
-   view_converter.convert_to_view()
+   view_converter.convert_to_view_values()
    ↓
 7. Phase 3: HTML生成
-   file_organizer.generate_html_files()
+   file_organizer.organize_html_files()
    ↓
 8. 完了メッセージ表示
 ```
@@ -153,13 +153,13 @@ python bin/tfplan-viewer.py \
 ### モジュールインポート
 
 ```python
-from lib.data_extraction import extract_resources_from_plan
-from lib.special_processor import process_special_resources
-from lib.special_config import load_special_config
-from lib.reference_resolver import resolve_references
-from lib.identifier_config import load_identifier_config
-from lib.view_converter import convert_to_view
-from lib.file_organizer import generate_html_files
+from data_extraction import extract_data
+from special_processor import process_special_resources
+from special_config import load_special_configs, SPECIAL_RESOURCE_TYPES
+from reference_resolver import resolve_references
+from identifier_config import load_identifier_config, RESOURCE_IDENTIFIER_ATTRIBUTES
+from view_converter import convert_to_view_values
+from file_organizer import organize_html_files
 ```
 
 ### 関数設計
@@ -180,13 +180,19 @@ def main():
   # Validate inputs
   validate_inputs(args)
 
+  # Load JSON files
+  with open(args.plan, 'r') as f:
+    plan_json = json.load(f)
+  with open(args.schema, 'r') as f:
+    schema_json = json.load(f)
+
   # Load configurations
   special_config = load_config_if_specified(args.special_config, 'special')
   identifier_config = load_config_if_specified(args.identifier_config, 'identifier')
 
   # Execute phases
   print("Phase 1: Extracting data...")
-  extracted = extract_resources_from_plan(args.plan_json, args.schema_json)
+  extracted = extract_data(plan_json, schema_json)
 
   print("Phase 2-1: Processing special resources...")
   processed = process_special_resources(extracted, special_config)
@@ -195,10 +201,10 @@ def main():
   resolved = resolve_references(processed, identifier_config)
 
   print("Phase 2-3: Converting to view...")
-  view_data = convert_to_view(resolved)
+  view_data = convert_to_view_values(resolved)
 
   print("Phase 3: Generating HTML...")
-  generate_html_files(view_data, args.output_dir, args.title)
+  organize_html_files(view_data, args.output_dir, args.title)
 
   print(f"✓ HTML report generated: {args.output_dir}/index.html")
 ```
@@ -244,14 +250,15 @@ Using default configuration.
 
 ```bash
 # テストサンプルで実行
-python bin/tfplan-viewer.py \
-  -p tests2/phase1_extraction/sample001/plan.json \
-  -s tests2/phase1_extraction/sample001/schema.json \
-  -o /tmp/test_output \
-  --title "Test Sample 001"
+cd tests/test001
+../../bin/tfplan-viewer.py \
+  -p plan.json \
+  -s schema.json \
+  -o html_output \
+  --title "Test001 Terraform Plan"
 
 # 出力確認
-open /tmp/test_output/index.html
+open html_output/index.html
 ```
 
 ---

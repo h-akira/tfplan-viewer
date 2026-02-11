@@ -177,8 +177,8 @@ def resolve_references(extracted_data, identifier_config=None):
   return resolved_data
 
 
-def main():
-  """Main entry point for reference resolution"""
+def test():
+  """Test function for development and debugging"""
   parser = argparse.ArgumentParser(
     description='Phase 2-2: Resolve references in OriginValue objects'
   )
@@ -259,4 +259,4 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+  test()

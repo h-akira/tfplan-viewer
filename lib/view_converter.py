@@ -170,8 +170,17 @@ def test():
     help='Input pickle file from Phase 2-2'
   )
   parser.add_argument(
-    '--output-dir',
-    help='Output directory for pickle and JSON files'
+    '--pickle-load',
+    action='store_true',
+    help='Load input as pickle file'
+  )
+  parser.add_argument(
+    '--output',
+    help='Output JSON file path (optional)'
+  )
+  parser.add_argument(
+    '--pickle-dump',
+    help='Output pickle file path (optional)'
   )
   parser.add_argument(
     '--exclude-attributes',
@@ -182,37 +191,35 @@ def test():
 
   args = parser.parse_args()
 
-  # Load input data from pickle
-  with open(args.input_file, 'rb') as f:
-    input_data = pickle.load(f)
-  print(f"Loaded {len(input_data)} resources from pickle", file=sys.stderr)
+  # Load input data
+  if args.pickle_load:
+    with open(args.input_file, 'rb') as f:
+      input_data = pickle.load(f)
+    print(f"Loaded {len(input_data)} resources from pickle", file=sys.stderr)
+  else:
+    print("ERROR: Only pickle input is supported (use --pickle-load)", file=sys.stderr)
+    sys.exit(1)
 
   # Convert to view values
   view_data = convert_to_view_values(input_data, args.exclude_attributes)
   print(f"Converted {len(view_data)} resources to ViewValue", file=sys.stderr)
 
-  # Save outputs if output directory specified
-  if args.output_dir:
-    from pathlib import Path
-    output_path = Path(args.output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-
-    # Save pickle (for Phase 3 testing)
-    pickle_file = output_path / 'view.pickle'
-    with open(pickle_file, 'wb') as f:
+  # Save pickle if requested
+  if args.pickle_dump:
+    with open(args.pickle_dump, 'wb') as f:
       pickle.dump(view_data, f)
-    print(f"Pickle output written to {pickle_file}", file=sys.stderr)
+    print(f"Pickle dump written to {args.pickle_dump}", file=sys.stderr)
 
-    # Save JSON (for human inspection)
-    json_file = output_path / 'view.json'
-    output_json = _serialize_for_json(view_data)
-    with open(json_file, 'w') as f:
-      json.dump(output_json, f, indent=2)
-    print(f"JSON output written to {json_file}", file=sys.stderr)
+  # Serialize for JSON output
+  output_json = _serialize_for_json(view_data)
+
+  # Output result
+  if args.output:
+    with open(args.output, 'w') as f:
+      json.dump(output_json, f, indent=2, ensure_ascii=False)
+    print(f"Output written to {args.output}", file=sys.stderr)
   else:
-    # Output to stdout if no output directory specified
-    output_json = _serialize_for_json(view_data)
-    print(json.dumps(output_json, indent=2))
+    print(json.dumps(output_json, indent=2, ensure_ascii=False))
 
 
 if __name__ == '__main__':
