@@ -14,6 +14,7 @@ from pathlib import Path
 # Add lib directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'lib'))
 
+from schema_loader import load_merged_schema
 from data_extraction import extract_data
 from special_processor import process_special_resources
 from special_config import load_special_configs, SPECIAL_RESOURCE_TYPES
@@ -46,13 +47,9 @@ def dump_identifier_config(output_file):
 
 
 def validate_inputs(args):
-  """Validate input files exist"""
+  """Validate input files/directories exist"""
   if not Path(args.plan).exists():
     print(f"ERROR: File not found: {args.plan}", file=sys.stderr)
-    sys.exit(1)
-
-  if not Path(args.schema).exists():
-    print(f"ERROR: File not found: {args.schema}", file=sys.stderr)
     sys.exit(1)
 
 
@@ -76,18 +73,21 @@ def parse_arguments():
     formatter_class=argparse.RawDescriptionHelpFormatter,
     epilog="""
 Examples:
-  # Basic execution
-  %(prog)s -p plan.json -s schema.json
+  # Basic execution (uses schema/ directory by default)
+  %(prog)s -p plan.json
+
+  # Specify schema directory
+  %(prog)s -p plan.json -s my_schema
 
   # Specify output directory
-  %(prog)s -p plan.json -s schema.json -o my_output
+  %(prog)s -p plan.json -o my_output
 
   # Export default configurations
   %(prog)s --dump-special-config special.json
   %(prog)s --dump-identifier-config identifiers.json
 
   # Use custom configurations
-  %(prog)s -p plan.json -s schema.json \\
+  %(prog)s -p plan.json \\
     --special-config special.json \\
     --identifier-config identifiers.json \\
     --title "Production Environment"
@@ -102,8 +102,8 @@ Examples:
   )
   parser.add_argument(
     '-s', '--schema',
-    required='--dump-special-config' not in sys.argv and '--dump-identifier-config' not in sys.argv,
-    help='Terraform provider schema JSON file path'
+    default='schema',
+    help='Schema directory containing d*/ subdirectories (default: schema)'
   )
 
   # Optional arguments
@@ -162,11 +162,18 @@ def main():
   identifier_config = load_config_if_specified(args.identifier_config, 'identifier')
 
   try:
-    # Load JSON files
+    # Load schema from directory
+    print(f"Loading schema from {args.schema}/...", file=sys.stderr)
+    schema_json = load_merged_schema(args.schema)
+    total_schemas = sum(
+      len(pd.get('resource_schemas', {}))
+      for pd in schema_json.get('provider_schemas', {}).values()
+    )
+    print(f"  ✓ Loaded {total_schemas} resource type schemas", file=sys.stderr)
+
+    # Load plan JSON
     with open(args.plan, 'r') as f:
       plan_json = json.load(f)
-    with open(args.schema, 'r') as f:
-      schema_json = json.load(f)
 
     # Phase 1: Data Extraction
     print("Phase 1: Extracting data...", file=sys.stderr)

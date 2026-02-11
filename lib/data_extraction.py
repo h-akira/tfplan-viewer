@@ -423,10 +423,11 @@ def test():
   """Test function using argparse"""
   import argparse
   import pickle
+  from pathlib import Path
 
   parser = argparse.ArgumentParser(description='Test data extraction')
   parser.add_argument('plan_json', help='Path to plan.json')
-  parser.add_argument('schema_json', help='Path to schema.json')
+  parser.add_argument('schema', help='Path to schema.json or schema directory')
   parser.add_argument('--output', help='Output JSON file path (optional)')
   parser.add_argument('--pickle-dump', help='Output pickle file path for Python object (optional)')
   args = parser.parse_args()
@@ -435,8 +436,14 @@ def test():
   with open(args.plan_json) as f:
     plan_json = json.load(f)
 
-  with open(args.schema_json) as f:
-    schema_json = json.load(f)
+  # Load schema from directory or file
+  schema_path = Path(args.schema)
+  if schema_path.is_dir():
+    from schema_loader import load_merged_schema
+    schema_json = load_merged_schema(args.schema)
+  else:
+    with open(args.schema) as f:
+      schema_json = json.load(f)
 
   # Execute extraction
   result = extract_data(plan_json, schema_json)

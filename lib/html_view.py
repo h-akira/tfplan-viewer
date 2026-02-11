@@ -893,14 +893,17 @@ def _generate_list_table(resources, resource_type):
   html = []
   html.append(f'<h2>{resource_type} 一覧</h2>')
 
-  # Step 1: Collect all attribute names from all resources
+  # Step 1: Collect all attribute names and descriptions from all resources
   all_attr_names = set()
+  attr_descriptions = {}  # attr_name -> description (first non-empty wins)
   for resource in resources:
     flattened = _flatten_values(resource['values'])
     for attr in flattened:
       # Only use top-level attribute names (no nesting)
       top_level_name = attr['name'].split('.')[0].split('[')[0]
       all_attr_names.add(top_level_name)
+      if top_level_name not in attr_descriptions and attr.get('description'):
+        attr_descriptions[top_level_name] = attr['description']
 
   # Sort attribute names
   sorted_attr_names = sorted(all_attr_names)
@@ -915,13 +918,21 @@ def _generate_list_table(resources, resource_type):
   html.append('  <tr>')
   html.append('    <th>リソース名</th>')
   for attr_name in sorted_attr_names:
+    desc = attr_descriptions.get(attr_name, '')
+    escaped_name = _escape_html(attr_name)
+    if desc:
+      escaped_desc = _escape_html(desc).replace("'", "\\'")
+      onclick_attr = f' onclick="alert(\'{escaped_name}: {escaped_desc}\')"'
+      cursor = ' cursor:pointer;'
+    else:
+      onclick_attr = ''
+      cursor = ''
     # Apply column width if configured
     if attr_name in column_widths:
       width = column_widths[attr_name]
-      html.append(f'    <th style="min-width: {width}; width: {width};">{_escape_html(attr_name)}</th>')
+      html.append(f'    <th style="min-width: {width}; width: {width};{cursor}"{onclick_attr}>{escaped_name}</th>')
     else:
-      # Default minimum width to fit "None" (4 chars) without wrapping
-      html.append(f'    <th style="min-width: 80px;">{_escape_html(attr_name)}</th>')
+      html.append(f'    <th style="min-width: 80px;{cursor}"{onclick_attr}>{escaped_name}</th>')
   html.append('  </tr>')
   html.append('</thead>')
   html.append('<tbody>')

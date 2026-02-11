@@ -26,6 +26,7 @@ tests/*/.terraform/
 tests/*/.terraform.lock.hcl
 tests/*/tfplan
 tests/*/tfplan.binary
+tests/*/schema/
 
 # HTML outputs (except tracked samples and test index)
 html_output/
@@ -45,6 +46,10 @@ deploy/
 *.swp
 *~
 
+# Claude Code
+.claude/
+**/.claude/
+
 # IDE
 .vscode/
 .idea/
@@ -58,3 +63,8 @@ Thumbs.db
 schema.json
 schema_extracted.json
 !tests/*/schema.json
+
+# Old file
+old/
+
+

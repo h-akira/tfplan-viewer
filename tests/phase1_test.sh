@@ -25,6 +25,7 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 PLAN_JSON="$TARGET_DIR/plan.json"
+SCHEMA_DIR="$TARGET_DIR/schema"
 SCHEMA_JSON="$TARGET_DIR/schema.json"
 EXTRACTED_PKL="$TARGET_DIR/extracted.pkl"
 EXTRACTED_JSON="$TARGET_DIR/extracted.json"
@@ -39,15 +40,20 @@ if [ ! -f "$PLAN_JSON" ]; then
   exit 1
 fi
 
-if [ ! -f "$SCHEMA_JSON" ]; then
-  echo "ERROR: schema.json not found in $TEST_DIR"
+# Use schema directory if available, fall back to schema.json
+if [ -d "$SCHEMA_DIR" ]; then
+  SCHEMA_SRC="$SCHEMA_DIR"
+elif [ -f "$SCHEMA_JSON" ]; then
+  SCHEMA_SRC="$SCHEMA_JSON"
+else
+  echo "ERROR: Neither schema/ directory nor schema.json found in $TEST_DIR"
   exit 1
 fi
 
-echo "Input:  $PLAN_JSON, $SCHEMA_JSON"
+echo "Input:  $PLAN_JSON, $SCHEMA_SRC"
 echo "Output: $EXTRACTED_PKL, $EXTRACTED_JSON"
 
-python3 "$PROJECT_ROOT/lib/data_extraction.py" "$PLAN_JSON" "$SCHEMA_JSON" \
+python3 "$PROJECT_ROOT/lib/data_extraction.py" "$PLAN_JSON" "$SCHEMA_SRC" \
   --pickle-dump "$EXTRACTED_PKL" \
   --output "$EXTRACTED_JSON"
 
