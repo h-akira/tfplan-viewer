@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pkl
+*.pickle
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Test outputs
+tests/*/extracted.json
+tests/*/extracted.pkl
+tests/*/special.json
+tests/*/special.pkl
+tests/*/reference.json
+tests/*/reference.pkl
+tests/*/view.json
+tests/*/view.pkl
+tests/*/html_output/
+tests/*/.terraform/
+tests/*/.terraform.lock.hcl
+tests/*/tfplan
+tests/*/tfplan.binary
+
+# HTML outputs (except index)
+html_output/
+output/
+*.html
+!tests/index.html
+
+# S3 deploy scripts (track but don't commit outputs)
+sync-s3.sh
+deploy/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large schema files
+schema.json
+schema_extracted.json
+!tests/*/schema.json
