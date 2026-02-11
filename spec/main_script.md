@@ -14,17 +14,20 @@ Phase 1-3の全モジュールを統合し、シンプルなコマンドライ�
 ## 基本使用方法
 
 ```bash
-# 基本実行
-python bin/tfplan-viewer.py -p plan.json -s schema.json
+# 基本実行（schema/ディレクトリをデフォルトで使用）
+python bin/tfplan-viewer.py -p plan.json
+
+# schemaディレクトリ指定
+python bin/tfplan-viewer.py -p plan.json -s my_schema
 
 # 出力ディレクトリ指定
-python bin/tfplan-viewer.py -p plan.json -s schema.json -o output_dir
+python bin/tfplan-viewer.py -p plan.json -o output_dir
 
 # タイトル指定
-python bin/tfplan-viewer.py -p plan.json -s schema.json -o output_dir --title "Production Environment"
+python bin/tfplan-viewer.py -p plan.json -o output_dir --title "Production Environment"
 
 # 設定ファイル指定
-python bin/tfplan-viewer.py -p plan.json -s schema.json -o output_dir \
+python bin/tfplan-viewer.py -p plan.json -o output_dir \
   --special-config special.json \
   --identifier-config identifiers.json
 ```
@@ -38,12 +41,12 @@ python bin/tfplan-viewer.py -p plan.json -s schema.json -o output_dir \
 | 引数 | 説明 |
 |------|------|
 | `-p, --plan` | Terraform plan JSONファイルのパス |
-| `-s, --schema` | Terraform provider schema JSONファイルのパス |
 
 ### オプション引数
 
 | 引数 | 説明 | デフォルト |
 |------|------|-----------|
+| `-s, --schema` | schemaディレクトリ（`d*/`構造） | `schema` |
 | `-o, --output-dir` | HTML出力ディレクトリ | `html_output` |
 | `--title` | HTMLレポートのタイトル | "Terraform Plan" |
 | `--special-config` | 特殊リソース処理設定ファイル（JSON） | デフォルト設定使用 |
@@ -65,14 +68,14 @@ python bin/tfplan-viewer.py -p plan.json -s schema.json -o output_dir \
 ### 1. 基本的な実行
 
 ```bash
-# 基本実行（html_output/に出力）
-python bin/tfplan-viewer.py -p plan.json -s schema.json
+# 基本実行（schema/ディレクトリ、html_output/に出力）
+python bin/tfplan-viewer.py -p plan.json
+
+# schemaディレクトリ指定
+python bin/tfplan-viewer.py -p plan.json -s my_schema
 
 # 出力ディレクトリ指定
-python bin/tfplan-viewer.py \
-  -p terraform/plan.json \
-  -s terraform/schema.json \
-  -o my_output
+python bin/tfplan-viewer.py -p plan.json -o my_output
 ```
 
 ### 2. カスタム設定での実行
@@ -84,8 +87,7 @@ python bin/tfplan-viewer.py --dump-identifier-config my_identifiers.json
 
 # 設定ファイルを編集後、カスタム設定で実行
 python bin/tfplan-viewer.py \
-  -p terraform/plan.json \
-  -s terraform/schema.json \
+  -p plan.json \
   -o html_output \
   --special-config my_special.json \
   --identifier-config my_identifiers.json \
@@ -101,32 +103,36 @@ python bin/tfplan-viewer.py \
    ↓
 2. 設定ファイル読み込み（指定されている場合）
    ↓
-3. Phase 1: データ抽出
+3. schema読み込み
+   schema_loader.load_merged_schema()でschemaディレクトリから統合読み込み
+   ↓
+4. Phase 1: データ抽出
    data_extraction.extract_data()
    ↓
-4. Phase 2-1: 特殊リソース処理
+5. Phase 2-1: 特殊リソース処理
    special_processor.process_special_resources()
    ↓
-5. Phase 2-2: 参照解決
+6. Phase 2-2: 参照解決
    reference_resolver.resolve_references()
    ↓
-6. Phase 2-3: View変換
+7. Phase 2-3: View変換
    view_converter.convert_to_view_values()
    ↓
-7. Phase 3: HTML生成
+8. Phase 3: HTML生成
    file_organizer.organize_html_files()
    ↓
-8. 完了メッセージ表示
+9. 完了メッセージ表示
 ```
 
 ---
 
 ## エラーハンドリング
 
-### 入力ファイルチェック
+### 入力チェック
 
 - plan.json が存在しない → エラーメッセージ表示、終了
-- schema.json が存在しない → エラーメッセージ表示、終了
+- schemaディレクトリが存在しない → エラーメッセージ表示、終了
+- schemaディレクトリ内にd*/が存在しない → エラーメッセージ表示、終了
 - JSONパースエラー → エラー詳細表示、終了
 
 ### 出力ディレクトリチェック
@@ -153,6 +159,7 @@ python bin/tfplan-viewer.py \
 ### モジュールインポート
 
 ```python
+from schema_loader import load_merged_schema
 from data_extraction import extract_data
 from special_processor import process_special_resources
 from special_config import load_special_configs, SPECIAL_RESOURCE_TYPES
@@ -180,11 +187,12 @@ def main():
   # Validate inputs
   validate_inputs(args)
 
-  # Load JSON files
+  # Load schema from directory
+  schema_json = load_merged_schema(args.schema)
+
+  # Load plan JSON
   with open(args.plan, 'r') as f:
     plan_json = json.load(f)
-  with open(args.schema, 'r') as f:
-    schema_json = json.load(f)
 
   # Load configurations
   special_config = load_config_if_specified(args.special_config, 'special')
@@ -216,6 +224,8 @@ def main():
 ### 成功時
 
 ```
+Loading schema from schema/...
+  ✓ Loaded 5 resource type schemas
 Phase 1: Extracting data...
   ✓ Extracted 42 resources
 Phase 2-1: Processing special resources...
@@ -236,7 +246,11 @@ ERROR: File not found: plan.json
 ```
 
 ```
-ERROR: Failed to parse plan.json: Invalid JSON format
+ERROR: Schema directory not found: schema/
+```
+
+```
+ERROR: Failed to parse JSON: Invalid JSON format
 ```
 
 ```
@@ -249,13 +263,22 @@ Using default configuration.
 ## テスト方法
 
 ```bash
-# テストサンプルで実行
 cd tests/test001
+
+# 事前準備: schema_manager.pyでschemaディレクトリ作成
+../../bin/schema_manager.py -p plan.json -s schema.json
+
+# テスト実行（schema/ディレクトリを使用）
 ../../bin/tfplan-viewer.py \
   -p plan.json \
-  -s schema.json \
   -o html_output \
   --title "Test001 Terraform Plan"
+
+# schemaディレクトリ指定
+../../bin/tfplan-viewer.py \
+  -p plan.json \
+  -s schema \
+  -o html_output
 
 # 出力確認
 open html_output/index.html

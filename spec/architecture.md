@@ -16,13 +16,32 @@ Terraform plan JSONファイルを人間が読みやすいHTML形式に変換す
 
 ## アーキテクチャ概要
 
-tfplan-viewerは3つのPhaseから構成される:
+tfplan-viewerはSchema読み込みと3つのPhaseから構成される:
 
-1. **Phase 1: データ抽出** - Terraform plan JSONとschema JSONから構造化データを抽出
+- **Schema読み込み** - リソースタイプ別に分割されたschemaファイルの統合読み込み
+1. **Phase 1: データ抽出** - Terraform plan JSONとschema dictから構造化データを抽出
 2. **Phase 2: データ加工** - 特殊リソース処理、参照解決、表示用データ変換
 3. **Phase 3: HTML生成** - HTMLテーブルとファイル構造の生成
 
-各Phaseは独立したモジュールライブラリとして実装される。
+各モジュールは独立して実装され、テスト可能。
+
+---
+
+## Schema読み込み
+
+### モジュール
+- `lib/schema_loader.py`
+
+### 入力
+- schemaディレクトリ（`schema/d*/*.json`）
+
+### 出力
+- Terraform標準形式のschema dict
+
+### 責任
+- `schema/d*/`配下のリソースタイプ別JSONファイルを統合読み込み
+- 同じリソースタイプが複数バージョンにある場合、最新のdXXXXを優先（警告表示）
+- 詳細は[schema_script.md](schema_script.md)を参照
 
 ---
 
@@ -33,7 +52,7 @@ tfplan-viewerは3つのPhaseから構成される:
 
 ### 入力
 - `plan.json` - Terraform planの出力（JSON形式）
-- `schema.json` - Terraform provider schemaの定義
+- schema dict - `schema_loader.load_merged_schema()`の戻り値（Terraform標準形式）
 
 ### 出力
 - Pythonリスト（pickleファイル）
@@ -49,7 +68,7 @@ tfplan-viewerは3つのPhaseから構成される:
 ```
 
 ### 責任
-- schema.jsonから非computed属性を抽出
+- schema dictから非computed属性を抽出
 - plan.jsonから各リソースの値を取得
 - OriginValueオブジェクトの生成（値、参照、description、required情報を保持）
 - モジュール変数（`var.xxx`）の解決
@@ -241,7 +260,12 @@ HTML生成の設定
 ## データフロー
 
 ```
-plan.json + schema.json
+schema/d*/*.json
+        ↓
+   [Schema読み込み]
+   schema_loader.py
+        ↓ (schema dict)
+plan.json + schema dict
         ↓
    [Phase 1: データ抽出]
    data_extraction.py
@@ -330,7 +354,7 @@ python3 ../../lib/file_organizer.py view.pkl html_output --pickle-load
 ### 統合テスト（メインスクリプト）
 ```bash
 cd tests/test001
-../../bin/tfplan-viewer.py -p plan.json -s schema.json -o html_output
+../../bin/tfplan-viewer.py -p plan.json -s schema -o html_output
 ```
 
 ---
