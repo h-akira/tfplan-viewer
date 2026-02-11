@@ -80,7 +80,16 @@ bin/schema_manager.py -p plan.json -s schema.json [-o schema]
 
 ## テスト方法
 
-### 個別Phaseのテスト
+### 初回セットアップ（plan.json/schema.jsonの生成）
+```bash
+cd /path/to/tfplan-viewer/tests
+./init.sh test001           # terraform init/plan/showを実行
+./schema_test.sh test001    # schema/d0000/にスキーマ分割
+```
+
+全テスト一括: `./run_all_init.sh` → `./run_all_schema.sh`
+
+### Phase別テスト
 ```bash
 cd /path/to/tfplan-viewer/tests
 ./phase1_test.sh test001
@@ -102,12 +111,6 @@ cd /path/to/tfplan-viewer/tests
 ./run_all_tests.sh
 ```
 
-### スキーマ分割テスト
-```bash
-cd /path/to/tfplan-viewer/tests
-./schema_test.sh test001
-```
-
 ### 通常モード（統合実行）
 ```bash
 cd /path/to/tfplan-viewer/tests/test001
@@ -115,6 +118,13 @@ cd /path/to/tfplan-viewer/tests/test001
 ```
 
 テストでschema/ディレクトリがない場合はschema.jsonにフォールバックする。
+
+### クリーン
+```bash
+cd /path/to/tfplan-viewer/tests
+./clean.sh test001          # 中間ファイル削除
+./run_all_clean.sh          # 全テスト一括クリーン
+```
 
 ## 開発規約
 
