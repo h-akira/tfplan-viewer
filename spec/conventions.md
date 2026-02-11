@@ -1,14 +1,12 @@
-# tfplan-viewer 開発ルール
+# tfplan-viewer 開発規約
 
-本プロジェクトの開発における規約とルールを定義する。
+本プロジェクトの開発における設計規約・命名規約・データフロー規約を定義する。
 
 ---
 
-## コーディング規約
+## モジュール設計規約
 
-### モジュール設計原則
-
-#### lib/配下のモジュール
+### lib/配下のモジュール
 
 **禁止事項**:
 - `main()`関数の定義は禁止
@@ -92,13 +90,20 @@ if __name__ == '__main__':
 
 **重要な原則**:
 - **メインスクリプト（bin/）では中間ファイルを生成しない** - すべてメモリ内で処理
-- **Pickleファイルはテスト用のみ** - Phase別テスト（tests2/）でPhase間のデータ検証に使用
+- **Pickleファイルはテスト用のみ** - Phase別テスト（tests/）でPhase間のデータ検証に使用
 - **JSONファイルもテスト用のみ** - 人間がデータ内容を確認するため
 - Phaseモジュールの`test()`関数では、`--pickle-dump`と`--output`オプションでpickleとJSON両方を出力可能にする（テスト・開発用）
 
 ---
 
 ## Phase間のデータ形式
+
+### Phase 1入力
+
+- **plan.json**: Terraform plan JSON
+- **スキーマ**: スキーマディレクトリ（`schema/d*/*.json`）またはschema.jsonファイル
+  - メインスクリプト: `schema_loader.load_merged_schema()`でディレクトリから統合読み込み
+  - テスト: `phase1_test.sh`がschema/ディレクトリ優先、なければschema.jsonにフォールバック
 
 ### Phase 1 → Phase 2-1
 
@@ -151,8 +156,14 @@ if __name__ == '__main__':
 | `phase2_2_test.sh <test_dir>` | Phase 2-2のみ実行 |
 | `phase2_3_test.sh <test_dir>` | Phase 2-3のみ実行 |
 | `phase3_test.sh <test_dir>` | Phase 3のみ実行 |
+| `schema_test.sh <test_dir>` | スキーマ分割テスト |
+| `init.sh <test_dir>` | テストデータ初期化（terraform実行） |
+| `clean.sh <test_dir>` | テスト中間ファイルのクリーン |
 | `run_all_phases.sh <test_dir>` | 指定テストの全Phase実行 |
 | `run_all_tests.sh` | 全テスト（test001〜test004）実行 |
+| `run_all_init.sh` | 全テストの初期化を実行 |
+| `run_all_clean.sh` | 全テストのクリーンを実行 |
+| `run_all_schema.sh` | 全テストのスキーマ分割を実行 |
 
 ### 統合テスト
 

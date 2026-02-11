@@ -95,7 +95,7 @@ schema/
 
 **戻り値の形式はdata_extraction.pyが受け取る形式と同一**であるため、data_extraction.pyの変更は不要。
 
-**テスト**: `test()`関数で独立テスト可能（rule.md準拠）
+**テスト**: `test()`関数で独立テスト可能（conventions.md準拠）
 
 ---
 
@@ -351,7 +351,7 @@ ERROR: Failed to parse schema/d0001/aws_iam_role.json: Invalid JSON format
 ### lib/schema_loader.pyの単体テスト
 
 ```bash
-# test()関数による独立テスト（rule.md準拠）
+# test()関数による独立テスト（conventions.md準拠）
 cd tests/test001
 python3 ../../lib/schema_loader.py schema --output merged.json
 ```
@@ -391,4 +391,4 @@ cd tests/test001
 
 - [architecture.md](architecture.md) - アーキテクチャ設計
 - [main_script.md](main_script.md) - メインスクリプト仕様
-- [rule.md](rule.md) - 開発ルール
+- [conventions.md](conventions.md) - 開発ルール
