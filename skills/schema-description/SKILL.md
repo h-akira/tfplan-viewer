@@ -13,7 +13,7 @@ Add Japanese `"description"` to attributes in `schema/d*/*.json` files.
 - `computed: true` かつ `optional` がないもの（読み取り専用）はスキップ
 - 英語のdescriptionは日本語で上書きする
 - 既存の日本語descriptionはユーザー指示がない限り上書きしない
-- descriptionは簡潔な日本語（1〜2文）で書く
+- descriptionは簡潔な日本語で書く（1〜2文程度で設計の参考になるようにする）
 
 JSON形式の詳細は [references/schema_format.md](references/schema_format.md) を参照。
 

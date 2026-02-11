@@ -9,7 +9,7 @@ model: sonnet
 
 ## ルール
 
-- `"description"`キーに簡潔な日本語説明を追加（1〜2文）
+- `"description"`キーに簡潔な日本語説明を追加（1〜2文程度で設計の参考になるようにする）
 - `"description_kind"`は変更しない（別物）
 - `computed: true`かつ`optional`がない属性はスキップ（読み取り専用）
 - `computed: true`かつ`optional: true`は対象（設定可能だが自動算出もされる）
